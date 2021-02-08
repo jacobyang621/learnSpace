@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 public class server {
     public static void main(String[] args) throws Exception{
+        System.out.println("开始启动");
         //1.获取通道
         ServerSocketChannel ssChannel = ServerSocketChannel.open();
         //2.切换为非阻塞模式
@@ -23,14 +24,20 @@ public class server {
         //6.使用选择器轮询已就绪的事件
         while (selector.select()>0){
             //7.获取选择器的所有就绪好的事件
+            System.out.println("开始事件处理");
             Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+            //8.遍历所得事件
             while (iterator.hasNext()){
                 SelectionKey sk = iterator.next();
+                //9.当事件为链接时，新建链接
                 if(sk.isAcceptable()){
+                    System.out.println("开始处理链接");
                     SocketChannel sChannel = ssChannel.accept();
                     sChannel.configureBlocking(false);
                     sChannel.register(selector,SelectionKey.OP_READ);
+                //10.当事件为准备读取时，读取
                 }else if(sk.isReadable()){
+                    System.out.println("开始处理数据");
                     SocketChannel channel = (SocketChannel) sk.channel();
                     ByteBuffer buf = ByteBuffer.allocate(1024);
                     int len = 0;
@@ -41,7 +48,6 @@ public class server {
                     }
                 }
                 iterator.remove();
-
             }
         }
     }
